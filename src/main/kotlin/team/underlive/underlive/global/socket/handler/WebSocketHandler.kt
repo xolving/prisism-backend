@@ -73,7 +73,7 @@ class WebSocketHandler(
 		socketService.sessions.map { (key, value) -> run {
 			val currentSession = sessionRepository.findBySocket(key)
 			if(roomEntity.sessions.contains(currentSession.get())){
-				value.sendMessage(TextMessage("{\"status\":g\"EXIT\"}"))
+				value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
 			}
 		}}
 
