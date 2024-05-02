@@ -24,7 +24,7 @@ class WebSocketHandler(
 	private val sessionRepository: SessionRepository,
 	private val roomRepository: RoomRepository,
 ) : TextWebSocketHandler() {
-	@Throws(Exception::class)
+	@Transactional
 	override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
 		val chatMessage: ChatMessage = objectMapper.readValue(message.payload, ChatMessage::class.java)
 		roomService.handlerActions(session, chatMessage, roomService)
@@ -35,7 +35,9 @@ class WebSocketHandler(
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
 		sessionRepository.save(sessionEntity)
 
-		roomService.sessions.add(session)
+		roomService.sessions.put(UUID.fromString(session.id), session)
+
+		session.sendMessage(TextMessage(objectMapper.writeValueAsString("접속에 성공하였습니다.")))
 
 		if(!roomRepository.existsRoomWithSingleSession()){
 			roomRepository.save(RoomEntity(
@@ -47,10 +49,6 @@ class WebSocketHandler(
 		val roomEntity = roomRepository.findRoomsWithSingleSession().get()
 		roomEntity.sessions.add(sessionEntity)
 		roomRepository.save(roomEntity)
-
-		if(roomEntity.sessions.size == 2){
-//			roomEntity.sessions.
-		}
 
 		super.afterConnectionEstablished(session)
 	}

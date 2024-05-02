@@ -9,6 +9,7 @@ import team.underlive.underlive.domain.chat.ChatMessage
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.session.repository.SessionRepository
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class RoomService(
@@ -16,7 +17,7 @@ class RoomService(
 	private val sessionRepository: SessionRepository,
 	private val objectMapper: ObjectMapper,
 ) {
-	val sessions = HashSet<WebSocketSession>()
+	val sessions = ConcurrentHashMap<UUID, WebSocketSession>()
 
 	fun findAllRoom(): Int {
 		val rooms = roomRepository.findAll()
@@ -28,20 +29,21 @@ class RoomService(
 	}
 
 	@Transactional
-	fun handlerActions(session: WebSocketSession, chatMessage: ChatMessage, roomService: RoomService) {
-		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
-		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
-		if(sessionEntity.isEmpty) session.close()
+	fun handlerActions(mySession: WebSocketSession, chatMessage: ChatMessage, roomService: RoomService) {
+		println(chatMessage.message + "ㅁㄴㅇ로ㅓㅁㄴ오라ㅣ어ㅗ미러ㅏㅇ놀머ㅏㄴ로머ㅏㄹㅁ오나ㅓ로리ㅏㅓ노리나어롱나ㅣ롬ㅇ나ㅣ러")
 
-		sessions.parallelStream()
-			.forEach { savedSession: WebSocketSession ->
+		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(mySession.id))
+		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
+		if(sessionEntity.isEmpty) mySession.close()
+
+		sessions.forEach { (key, value) ->
 				run {
-					val savedSessionEntity = sessionRepository.findBySocket(UUID.fromString(savedSession.id)).get()
+					val savedSessionEntity = sessionRepository.findBySocket(key).get()
 
 					if(roomEntity.sessions.contains(savedSessionEntity) &&
 						roomEntity.sessions.size == 2 &&
-						session.id != savedSession.id){
-						roomService.sendMessage(savedSession, chatMessage)
+						UUID.fromString(mySession.id) != key){
+						roomService.sendMessage(value, chatMessage)
 					}
 				}
 			}
