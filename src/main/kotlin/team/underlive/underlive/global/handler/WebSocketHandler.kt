@@ -8,7 +8,7 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import team.underlive.underlive.domain.room.entity.dto.ChatMessage
+import team.underlive.underlive.domain.room.dto.ChatMessage
 import team.underlive.underlive.domain.room.entity.RoomEntity
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.room.service.RoomService
@@ -55,6 +55,8 @@ class WebSocketHandler(
 
 	@Transactional
 	override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
+		roomService.sessions.remove(UUID.fromString(session.id))
+
 		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id)).get()
 		val roomEntity = roomRepository.findBySessionsContains(sessionEntity).get()
 

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import team.underlive.underlive.domain.room.dto.res.PlayerCountResponse
 import team.underlive.underlive.domain.room.entity.RoomEntity
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.room.service.RoomService
@@ -18,5 +19,10 @@ class RoomController(
 	fun findAllRoom(): ResponseEntity<Int> {
 		val rooms = roomService.findAllRoom()
 		return ResponseEntity.ok(rooms)
+	}
+
+	@GetMapping("/player")
+	fun countAllPlayers(): ResponseEntity<PlayerCountResponse>{
+		return ResponseEntity.ok(roomService.countAllPlayers())
 	}
 }
