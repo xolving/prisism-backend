@@ -3,10 +3,10 @@ spring:
     name: underlive
 
   datasource:
-    url: jdbc:mysql://localhost:3306/underlive2
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
+    url: jdbc:postgresql://localhost:5432/underlive
+    username: postgres
     password: 1234
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -16,7 +16,7 @@ spring:
         format_sql: true
         use_sql_comments: true
         show_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+    database: postgresql
 
 server:
   port: 8081

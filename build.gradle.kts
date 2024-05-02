@@ -26,15 +26,24 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-web")
+	// Lombok
+	annotationProcessor("org.projectlombok:lombok")
+
+	// Socket
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
+
+	// Default
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	compileOnly("org.projectlombok:lombok")
-	runtimeOnly("com.mysql:mysql-connector-j")
-	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+	// Lombok
+	compileOnly("org.projectlombok:lombok")
+
+	// Database
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.postgresql:postgresql:42.7.3")
 }
 
 tasks.withType<KotlinCompile> {
