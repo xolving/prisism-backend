@@ -8,7 +8,7 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import team.underlive.underlive.domain.chat.ChatMessage
+import team.underlive.underlive.domain.room.entity.dto.ChatMessage
 import team.underlive.underlive.domain.room.entity.RoomEntity
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.room.service.RoomService

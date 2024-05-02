@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
-import team.underlive.underlive.domain.chat.ChatMessage
+import team.underlive.underlive.domain.room.entity.dto.ChatMessage
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.session.repository.SessionRepository
 import java.util.*
