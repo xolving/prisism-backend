@@ -70,6 +70,13 @@ class WebSocketHandler(
 		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id)).get()
 		val roomEntity = roomRepository.findBySessionsContains(sessionEntity).get()
 
+		socketService.sessions.map { (key, value) -> run {
+			val currentSession = sessionRepository.findBySocket(key)
+			if(roomEntity.sessions.contains(currentSession.get())){
+				value.sendMessage(TextMessage("{\"message\": \"상대방이 채팅을 종료하였습니다.\"}"))
+			}
+		}}
+
 		roomRepository.deleteBySessionsContains(sessionEntity)
 		roomEntity.sessions.map { currentSession ->
 			sessionRepository.delete(currentSession)
