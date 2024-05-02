@@ -2,6 +2,7 @@ package team.underlive.underlive.domain.room.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import team.underlive.underlive.domain.chat.ChatMessage
@@ -15,7 +16,7 @@ class RoomService(
 	private val sessionRepository: SessionRepository,
 	private val objectMapper: ObjectMapper,
 ) {
-	private val sessions = HashSet<WebSocketSession>()
+	val sessions = HashSet<WebSocketSession>()
 
 	fun findAllRoom(): Int {
 		val rooms = roomRepository.findAll()
@@ -26,20 +27,22 @@ class RoomService(
 		session.sendMessage(TextMessage(objectMapper.writeValueAsString(message)))
 	}
 
+	@Transactional
 	fun handlerActions(session: WebSocketSession, chatMessage: ChatMessage, roomService: RoomService) {
 		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
+		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
 		if(sessionEntity.isEmpty) session.close()
-
-
-		if (chatMessage.messageType == ChatMessage.MessageType.ENTER) {
-			sessions.add(session)
-			chatMessage.message = chatMessage.senderId + "님이 입장했습니다."
-		}
 
 		sessions.parallelStream()
 			.forEach { savedSession: WebSocketSession ->
 				run {
-					roomService.sendMessage(savedSession, chatMessage)
+					val savedSessionEntity = sessionRepository.findBySocket(UUID.fromString(savedSession.id)).get()
+
+					if(roomEntity.sessions.contains(savedSessionEntity) &&
+						roomEntity.sessions.size == 2 &&
+						session.id != savedSession.id){
+						roomService.sendMessage(savedSession, chatMessage)
+					}
 				}
 			}
 	}

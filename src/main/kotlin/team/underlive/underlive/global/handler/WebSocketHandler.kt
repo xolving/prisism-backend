@@ -32,10 +32,10 @@ class WebSocketHandler(
 
 	@Transactional
 	override fun afterConnectionEstablished(session: WebSocketSession) {
-		println(session.id)
-
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
 		sessionRepository.save(sessionEntity)
+
+		roomService.sessions.add(session)
 
 		if(!roomRepository.existsRoomWithSingleSession()){
 			roomRepository.save(RoomEntity(
@@ -46,8 +46,11 @@ class WebSocketHandler(
 
 		val roomEntity = roomRepository.findRoomsWithSingleSession().get()
 		roomEntity.sessions.add(sessionEntity)
-
 		roomRepository.save(roomEntity)
+
+		if(roomEntity.sessions.size == 2){
+//			roomEntity.sessions.
+		}
 
 		super.afterConnectionEstablished(session)
 	}
