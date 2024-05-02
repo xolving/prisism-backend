@@ -34,9 +34,8 @@ class SocketService(
 			run {
 				val savedSessionEntity = sessionRepository.findBySocket(key).get()
 
-				if(roomEntity.sessions.contains(savedSessionEntity) &&
-					roomEntity.sessions.size == 2 &&
-					UUID.fromString(mySession.id) != key){
+				if(roomEntity.sessions.contains(savedSessionEntity)
+					&& roomEntity.sessions.size == 2 && UUID.fromString(mySession.id) != key){
 					sendMessage(value, chatMessage)
 				}
 			}

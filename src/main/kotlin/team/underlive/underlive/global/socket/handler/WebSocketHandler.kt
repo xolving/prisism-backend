@@ -39,7 +39,6 @@ class WebSocketHandler(
 
 		socketService.sessions.put(UUID.fromString(session.id), session)
 
-		session.sendMessage(TextMessage(objectMapper.writeValueAsString("접속에 성공하였습니다.")))
 
 		if(!roomRepository.existsRoomWithSingleSession()){
 			roomRepository.save(RoomEntity(
@@ -51,6 +50,15 @@ class WebSocketHandler(
 		val roomEntity = roomRepository.findRoomsWithSingleSession().get()
 		roomEntity.sessions.add(sessionEntity)
 		roomRepository.save(roomEntity)
+
+		if(roomEntity.sessions.size == 2){
+			socketService.sessions.map { (key, value) -> run {
+				val currentSession = sessionRepository.findBySocket(key)
+				if(roomEntity.sessions.contains(currentSession.get())){
+					value.sendMessage(TextMessage(objectMapper.writeValueAsString("상대방과 매칭되었습니다.")))
+				}
+			}}
+		}
 
 		super.afterConnectionEstablished(session)
 	}
