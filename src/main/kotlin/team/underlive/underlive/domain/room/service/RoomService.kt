@@ -30,8 +30,6 @@ class RoomService(
 
 	@Transactional
 	fun handlerActions(mySession: WebSocketSession, chatMessage: ChatMessage, roomService: RoomService) {
-		println(chatMessage.message + "ㅁㄴㅇ로ㅓㅁㄴ오라ㅣ어ㅗ미러ㅏㅇ놀머ㅏㄴ로머ㅏㄹㅁ오나ㅓ로리ㅏㅓ노리나어롱나ㅣ롬ㅇ나ㅣ러")
-
 		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(mySession.id))
 		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
 		if(sessionEntity.isEmpty) mySession.close()
