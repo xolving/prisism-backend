@@ -14,6 +14,7 @@ import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.room.service.RoomService
 import team.underlive.underlive.domain.session.entity.SessionEntity
 import team.underlive.underlive.domain.session.repository.SessionRepository
+import team.underlive.underlive.global.socket.service.SocketService
 import java.util.*
 
 @Slf4j
@@ -21,13 +22,14 @@ import java.util.*
 class WebSocketHandler(
 	private val objectMapper: ObjectMapper,
 	private val roomService: RoomService,
+	private val socketService: SocketService,
 	private val sessionRepository: SessionRepository,
 	private val roomRepository: RoomRepository,
 ) : TextWebSocketHandler() {
 	@Transactional
 	override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
 		val chatMessage: ChatMessage = objectMapper.readValue(message.payload, ChatMessage::class.java)
-		roomService.handlerActions(session, chatMessage, roomService)
+		socketService.handlerActions(session, chatMessage, roomService)
 	}
 
 	@Transactional
@@ -35,7 +37,7 @@ class WebSocketHandler(
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
 		sessionRepository.save(sessionEntity)
 
-		roomService.sessions.put(UUID.fromString(session.id), session)
+		socketService.sessions.put(UUID.fromString(session.id), session)
 
 		session.sendMessage(TextMessage(objectMapper.writeValueAsString("접속에 성공하였습니다.")))
 
@@ -55,7 +57,7 @@ class WebSocketHandler(
 
 	@Transactional
 	override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-		roomService.sessions.remove(UUID.fromString(session.id))
+		socketService.sessions.remove(UUID.fromString(session.id))
 
 		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id)).get()
 		val roomEntity = roomRepository.findBySessionsContains(sessionEntity).get()
