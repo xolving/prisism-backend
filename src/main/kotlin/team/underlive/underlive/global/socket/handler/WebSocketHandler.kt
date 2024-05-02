@@ -1,4 +1,4 @@
-package team.underlive.underlive.global.handler
+package team.underlive.underlive.global.socket.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.extern.slf4j.Slf4j
@@ -8,7 +8,7 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import team.underlive.underlive.domain.room.dto.ChatMessage
+import team.underlive.underlive.global.socket.dto.ChatMessage
 import team.underlive.underlive.domain.room.entity.RoomEntity
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.room.service.RoomService
