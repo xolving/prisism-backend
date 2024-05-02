@@ -55,7 +55,7 @@ class WebSocketHandler(
 			socketService.sessions.map { (key, value) -> run {
 				val currentSession = sessionRepository.findBySocket(key)
 				if(roomEntity.sessions.contains(currentSession.get())){
-					value.sendMessage(TextMessage(objectMapper.writeValueAsString("상대방과 매칭되었습니다.")))
+					value.sendMessage(TextMessage("{\"message\": \"상대방과 매칭되었습니다.\"}"))
 				}
 			}}
 		}
