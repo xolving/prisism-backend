@@ -34,6 +34,8 @@ class WebSocketHandler(
 
 	@Transactional
 	override fun afterConnectionEstablished(session: WebSocketSession) {
+		session.sendMessage(TextMessage("{\"status\":\"WAIT\"}"))
+
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
 		sessionRepository.save(sessionEntity)
 
@@ -74,7 +76,7 @@ class WebSocketHandler(
 			val currentSession = sessionRepository.findBySocket(key)
 			if(roomEntity.sessions.contains(currentSession.get())){
 				value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
-				value.close();
+				value.close()
 			}
 		}}
 
