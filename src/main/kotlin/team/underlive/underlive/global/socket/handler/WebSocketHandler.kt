@@ -1,7 +1,6 @@
 package team.underlive.underlive.global.socket.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import lombok.extern.slf4j.Slf4j
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.CloseStatus
@@ -17,7 +16,6 @@ import team.underlive.underlive.domain.session.repository.SessionRepository
 import team.underlive.underlive.global.socket.service.SocketService
 import java.util.*
 
-@Slf4j
 @Component
 class WebSocketHandler(
 	private val objectMapper: ObjectMapper,
@@ -39,8 +37,7 @@ class WebSocketHandler(
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
 		sessionRepository.save(sessionEntity)
 
-		socketService.sessions.put(UUID.fromString(session.id), session)
-
+		socketService.sessions[UUID.fromString(session.id)] = session
 
 		if(!roomRepository.existsRoomWithSingleSession()){
 			roomRepository.save(RoomEntity(
