@@ -25,19 +25,25 @@ class SocketService(
 	}
 
 	@Transactional
-	fun handlerActions(mySession: WebSocketSession, chatMessage: ChatMessage, roomService: RoomService) {
-		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(mySession.id))
-		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
-		if(sessionEntity.isEmpty) mySession.close()
+	fun handlerActions(session: WebSocketSession, chatMessage: ChatMessage, roomService: RoomService) {
+		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
 
-		sessions.forEach { (key, value) ->
-			run {
-				val savedSessionEntity = sessionRepository.findBySocket(key).get()
+		if (sessionEntity.isPresent) {
+			val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
 
-				if(roomEntity.sessions.contains(savedSessionEntity)
-					&& roomEntity.sessions.size == 2 && UUID.fromString(mySession.id) != key){
-					sendMessage(value, chatMessage)
+			if(roomEntity.isPresent){
+				sessions.forEach { (key, value) ->
+					run {
+						val savedSessionEntity = sessionRepository.findBySocket(key).get()
+
+						if(roomEntity.get().sessions.contains(savedSessionEntity)
+							&& roomEntity.get().sessions.size == 2 && UUID.fromString(session.id) != key){
+							sendMessage(value, chatMessage)
+						}
+					}
 				}
+			} else {
+				sessionRepository.delete(sessionEntity.get())
 			}
 		}
 	}

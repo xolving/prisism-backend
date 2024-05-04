@@ -17,6 +17,7 @@ import team.underlive.underlive.global.socket.service.SocketService
 import java.util.*
 
 @Component
+@Transactional
 class WebSocketHandler(
 	private val objectMapper: ObjectMapper,
 	private val roomService: RoomService,
@@ -24,13 +25,11 @@ class WebSocketHandler(
 	private val sessionRepository: SessionRepository,
 	private val roomRepository: RoomRepository,
 ) : TextWebSocketHandler() {
-	@Transactional
 	override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
 		val chatMessage: ChatMessage = objectMapper.readValue(message.payload, ChatMessage::class.java)
 		socketService.handlerActions(session, chatMessage, roomService)
 	}
 
-	@Transactional
 	override fun afterConnectionEstablished(session: WebSocketSession) {
 		session.sendMessage(TextMessage("{\"status\":\"WAIT\"}"))
 
@@ -39,21 +38,23 @@ class WebSocketHandler(
 
 		socketService.sessions[UUID.fromString(session.id)] = session
 
-		if(!roomRepository.existsRoomWithSingleSession()){
-			roomRepository.save(RoomEntity(
-				id = null,
-				sessions = mutableListOf()
-			))
+		val rooms = roomRepository.findRoomsWithSingleSession()
+
+		if(rooms.isEmpty()){
+			val roomEntity = RoomEntity(null, mutableListOf(sessionEntity))
+			roomRepository.save(roomEntity)
+			rooms.add(roomEntity)
+		} else {
+			val roomEntity = rooms[0]
+			roomEntity.sessions.add(sessionEntity)
+			roomRepository.save(roomEntity)
+			rooms.add(roomEntity)
 		}
 
-		val roomEntity = roomRepository.findRoomsWithSingleSession().get()
-		roomEntity.sessions.add(sessionEntity)
-		roomRepository.save(roomEntity)
-
-		if(roomEntity.sessions.size == 2){
+		if(rooms[0].sessions.size == 2){
 			socketService.sessions.map { (key, value) -> run {
 				val currentSession = sessionRepository.findBySocket(key)
-				if(roomEntity.sessions.contains(currentSession.get())){
+				if(rooms[0].sessions.isNotEmpty() && rooms[0].sessions.contains(currentSession.get())){
 					value.sendMessage(TextMessage("{\"status\":\"JOIN\"}"))
 				}
 			}}
@@ -62,24 +63,24 @@ class WebSocketHandler(
 		super.afterConnectionEstablished(session)
 	}
 
-	@Transactional
 	override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
 		socketService.sessions.remove(UUID.fromString(session.id))
 
-		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id)).get()
-		val roomEntity = roomRepository.findBySessionsContains(sessionEntity).get()
+		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
 
-		socketService.sessions.map { (key, value) -> run {
-			val currentSession = sessionRepository.findBySocket(key)
-			if(roomEntity.sessions.contains(currentSession.get())){
-				value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
-				value.close()
-			}
-		}}
+		if(sessionEntity.isPresent){
+			val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
 
-		roomRepository.deleteBySessionsContains(sessionEntity)
-		roomEntity.sessions.map { currentSession ->
-			sessionRepository.delete(currentSession)
+			socketService.sessions.map { (key, value) -> run {
+				val currentSession = sessionRepository.findBySocket(key)
+				if(roomEntity.get().sessions.contains(currentSession.get())){
+					value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
+					value.close()
+					sessionRepository.delete(currentSession.get())
+				}
+			}}
+
+			roomRepository.deleteBySessionsContains(sessionEntity.get())
 		}
 
 		super.afterConnectionClosed(session, status)

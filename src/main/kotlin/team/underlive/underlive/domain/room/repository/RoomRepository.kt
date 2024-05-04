@@ -9,8 +9,8 @@ import java.util.Optional
 interface RoomRepository: JpaRepository<RoomEntity, Long> {
 	fun deleteBySessionsContains(sessionEntity: SessionEntity)
 
-	@Query("SELECT r FROM RoomEntity r WHERE SIZE(r.sessions) < 2")
-	fun findRoomsWithSingleSession(): Optional<RoomEntity>
+	@Query("SELECT r FROM RoomEntity r WHERE SIZE(r.sessions) = 1")
+	fun findRoomsWithSingleSession(): ArrayList<RoomEntity>
 
 	@Query("SELECT COUNT(r) > 0 FROM RoomEntity r WHERE SIZE(r.sessions) = 1")
 	fun existsRoomWithSingleSession(): Boolean
