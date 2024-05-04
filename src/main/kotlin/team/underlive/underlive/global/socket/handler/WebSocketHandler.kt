@@ -74,6 +74,7 @@ class WebSocketHandler(
 			val currentSession = sessionRepository.findBySocket(key)
 			if(roomEntity.sessions.contains(currentSession.get())){
 				value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
+				value.close();
 			}
 		}}
 
