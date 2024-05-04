@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import team.underlive.underlive.global.socket.dto.ChatMessage
-import team.underlive.underlive.domain.room.dto.res.PlayerCountResponse
+import team.underlive.underlive.domain.room.controller.dto.res.PlayerCountResponse
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.domain.session.repository.SessionRepository
 import team.underlive.underlive.global.socket.service.SocketService
