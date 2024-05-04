@@ -20,7 +20,7 @@ class SocketService(
 ){
 	val sessions = ConcurrentHashMap<UUID, WebSocketSession>()
 
-	fun <T> sendMessage(session: WebSocketSession, message: T) {
+	fun sendMessage(session: WebSocketSession, message: ChatMessage) {
 		session.sendMessage(TextMessage(objectMapper.writeValueAsString(message)))
 	}
 
