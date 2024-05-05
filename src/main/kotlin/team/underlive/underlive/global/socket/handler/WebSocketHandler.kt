@@ -2,7 +2,6 @@ package team.underlive.underlive.global.socket.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -21,7 +20,7 @@ class WebSocketHandler(
 	}
 
 	override fun afterConnectionEstablished(session: WebSocketSession) {
-		socketService.estabilshedConnection(session)
+		socketService.establishedConnection(session)
 		super.afterConnectionEstablished(session)
 	}
 

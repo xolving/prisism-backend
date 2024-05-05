@@ -32,25 +32,17 @@ class SocketService(
 		if (sessionEntity.isPresent) {
 			val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
 
-			if(roomEntity.isPresent){
-				sessions.forEach { (key, value) ->
-					run {
-						val savedSessionEntity = sessionRepository.findBySocket(key).get()
-
-						if(roomEntity.get().sessions.contains(savedSessionEntity)
-							&& roomEntity.get().sessions.size == 2 && UUID.fromString(session.id) != key){
-							sendMessage(value, chatMessage)
-						}
-					}
+			roomEntity.get().sessions.map { mapSession ->
+				val roomSession = sessions.filter { it.key == mapSession.socket }.toList()[0]
+				if(session.id != roomSession.first.toString()){
+					sendMessage(roomSession.second, chatMessage)
 				}
-			} else {
-				sessionRepository.delete(sessionEntity.get())
 			}
 		}
 	}
 
 	@Transactional
-	fun estabilshedConnection(session: WebSocketSession){
+	fun establishedConnection(session: WebSocketSession){
 		session.sendMessage(TextMessage("{\"status\":\"WAIT\"}"))
 
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
@@ -61,23 +53,22 @@ class SocketService(
 		val rooms = roomRepository.findRoomsWithSingleSession()
 
 		if(rooms.isEmpty()){
-			val roomEntity = RoomEntity(null, mutableListOf(sessionEntity))
-			roomRepository.save(roomEntity)
-			rooms.add(roomEntity)
-		} else {
-			val roomEntity = rooms[0]
-			roomEntity.sessions.add(sessionEntity)
-			roomRepository.save(roomEntity)
+			val roomEntity = RoomEntity(null, mutableListOf())
 			rooms.add(roomEntity)
 		}
 
-		if(rooms[0].sessions.size == 2){
-			sessions.map { (key, value) -> run {
-				val currentSession = sessionRepository.findBySocket(key)
-				if(rooms[0].sessions.isNotEmpty() && rooms[0].sessions.contains(currentSession.get())){
-					value.sendMessage(TextMessage("{\"status\":\"JOIN\"}"))
-				}
-			}}
+		val room = rooms[0]
+		room.sessions.add(sessionEntity)
+		roomRepository.save(room)
+
+		if(room.sessions.size == 2){
+			room.sessions.map { mapSession ->
+				sessions.filter { run {
+					it.key == mapSession.socket
+				}}.map { run {
+					it.value.sendMessage(TextMessage("{\"status\":\"JOIN\"}"))
+				}}
+			}
 		}
 	}
 
@@ -86,20 +77,17 @@ class SocketService(
 		sessions.remove(UUID.fromString(session.id))
 
 		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
+		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
 
-		if(sessionEntity.isPresent){
-			val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
-
-			sessions.map { (key, value) -> run {
-				val currentSession = sessionRepository.findBySocket(key)
-				if(roomEntity.get().sessions.contains(currentSession.get())){
-					value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
-					value.close()
-					sessionRepository.delete(currentSession.get())
-				}
-			}}
-
-			roomRepository.deleteBySessionsContains(sessionEntity.get())
+		roomEntity.sessions.map { mapSession ->
+			val roomSessions = sessions.filter { it.key == mapSession.socket }
+			roomSessions.map {
+				it.value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
+				it.value.close()
+			}
 		}
+
+		sessionRepository.delete(sessionEntity.get())
+		roomRepository.deleteBySessionsContains(sessionEntity.get())
 	}
 }
