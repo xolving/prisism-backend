@@ -85,8 +85,10 @@ class SocketService(
 			roomEntity.get().sessions.map { mapSession ->
 				val roomSessions = sessions.filter { it.key == mapSession.socket }
 				roomSessions.map {
-					it.value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
-					it.value.close()
+					if(it.value.isOpen){
+						it.value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
+						it.value.close()
+					}
 				}
 			}
 			roomRepository.deleteById(roomEntity.get().id!!)
