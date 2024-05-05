@@ -10,4 +10,5 @@ import java.util.UUID
 interface SessionRepository: JpaRepository<SessionEntity, Long> {
 	fun findBySocket(socket: UUID): Optional<SessionEntity>
 
+	fun deleteBySocket(socket: UUID)
 }

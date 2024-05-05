@@ -74,20 +74,24 @@ class SocketService(
 
 	@Transactional
 	fun closedConnection(session: WebSocketSession){
-		sessions.remove(UUID.fromString(session.id))
+		val sessionId = UUID.fromString(session.id)
 
-		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
-		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get()).get()
+		sessions.remove(sessionId)
 
-		roomEntity.sessions.map { mapSession ->
-			val roomSessions = sessions.filter { it.key == mapSession.socket }
-			roomSessions.map {
-				it.value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
-				it.value.close()
+		val sessionEntity = sessionRepository.findBySocket(sessionId)
+		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
+
+		if(roomEntity.isPresent){
+			roomEntity.get().sessions.map { mapSession ->
+				val roomSessions = sessions.filter { it.key == mapSession.socket }
+				roomSessions.map {
+					it.value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
+					it.value.close()
+				}
 			}
+			roomRepository.deleteById(roomEntity.get().id!!)
 		}
 
-		sessionRepository.delete(sessionEntity.get())
-		roomRepository.deleteBySessionsContains(sessionEntity.get())
+		sessionRepository.deleteBySocket(sessionId)
 	}
 }
