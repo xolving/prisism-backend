@@ -43,7 +43,7 @@ class SocketService(
 
 	@Transactional
 	fun establishedConnection(session: WebSocketSession){
-		session.sendMessage(TextMessage("{\"status\":\"WAIT\"}"))
+		session.sendMessage(TextMessage("{\"status\":\"상대방의 접속을 기다리고 있습니다.\"}"))
 
 		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
 		sessionRepository.save(sessionEntity)
@@ -66,7 +66,7 @@ class SocketService(
 				sessions.filter { run {
 					it.key == mapSession.socket
 				}}.map { run {
-					it.value.sendMessage(TextMessage("{\"status\":\"JOIN\"}"))
+					it.value.sendMessage(TextMessage("{\"status\":\"상대방이 들어왔습니다.\"}"))
 				}}
 			}
 		}
@@ -86,7 +86,7 @@ class SocketService(
 				val roomSessions = sessions.filter { it.key == mapSession.socket }
 				roomSessions.map {
 					if(it.value.isOpen){
-						it.value.sendMessage(TextMessage("{\"status\":\"EXIT\"}"))
+						it.value.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
 						it.value.close()
 					}
 				}
