@@ -31,10 +31,7 @@ class SocketService(
 		}
 	}
 
-	@Transactional
 	fun establishedConnection(session: WebSocketSession){
-		sessions.add(session)
-
 		session.sendMessage(TextMessage("{\"status\":\"상대방의 접속을 기다리고 있습니다.\"}"))
 
 		val rooms = roomRepository.findBySessionBIsNull()
@@ -50,6 +47,8 @@ class SocketService(
 			))
 		}
 
+		sessions.add(session)
+
 		val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 		if(room.get().sessionA != null && room.get().sessionB != null) {
 			sessions.find { it.id == room.get().sessionB }
@@ -59,7 +58,6 @@ class SocketService(
 		}
 	}
 
-	@Transactional
 	fun closedConnection(session: WebSocketSession){
 		val roomEntity = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 
