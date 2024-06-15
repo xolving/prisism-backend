@@ -61,19 +61,21 @@ class SocketService(
 
 	@Transactional
 	fun closedConnection(session: WebSocketSession){
-		sessions.remove(session)
-
 		val roomEntity = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 
-		val sessionA = sessions.find { it.id == roomEntity.get().sessionA }
-		val sessionB = sessions.find { it.id == roomEntity.get().sessionB }
+		if(roomEntity.isPresent) {
+			val sessionA = sessions.find { it.id == roomEntity.get().sessionA }
+			val sessionB = sessions.find { it.id == roomEntity.get().sessionB }
 
-		roomRepository.delete(roomEntity.get())
+			roomRepository.delete(roomEntity.get())
 
-		sessionA?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
-		sessionA?.close()
+			sessionA?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
+			sessionA?.close()
 
-		sessionB?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
-		sessionB?.close()
+			sessionB?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
+			sessionB?.close()
+		}
+
+		sessions.remove(session)
 	}
 }
