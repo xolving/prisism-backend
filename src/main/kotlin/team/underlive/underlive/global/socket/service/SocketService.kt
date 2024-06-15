@@ -7,19 +7,14 @@ import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import team.underlive.underlive.domain.room.entity.RoomEntity
 import team.underlive.underlive.domain.room.repository.RoomRepository
-import team.underlive.underlive.domain.session.entity.SessionEntity
-import team.underlive.underlive.domain.session.repository.SessionRepository
 import team.underlive.underlive.global.socket.dto.ChatMessage
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class SocketService(
 	private val roomRepository: RoomRepository,
-	private val sessionRepository: SessionRepository,
 	private val objectMapper: ObjectMapper
 ){
-	val sessions = ConcurrentHashMap<UUID, WebSocketSession>()
+	val sessions = arrayListOf<WebSocketSession>()
 
 	fun sendMessage(session: WebSocketSession, message: ChatMessage) {
 		session.sendMessage(TextMessage(objectMapper.writeValueAsString(message)))
@@ -27,73 +22,56 @@ class SocketService(
 
 	@Transactional
 	fun handlerActions(session: WebSocketSession, chatMessage: ChatMessage) {
-		val sessionEntity = sessionRepository.findBySocket(UUID.fromString(session.id))
+		val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 
-		if (sessionEntity.isPresent) {
-			val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
-
-			roomEntity.get().sessions.map { mapSession ->
-				val roomSession = sessions.filter { it.key == mapSession.socket }.toList()[0]
-				if(session.id != roomSession.first.toString()){
-					sendMessage(roomSession.second, chatMessage)
-				}
-			}
+		if(room.get().sessionA != session.id) {
+			sessions.find { it.id == room.get().sessionA}?.let { sendMessage(it, chatMessage) }
+		} else if(room.get().sessionB != session.id) {
+			sessions.find { it.id == room.get().sessionB}?.let { sendMessage(it, chatMessage) }
 		}
 	}
 
 	@Transactional
 	fun establishedConnection(session: WebSocketSession){
+		sessions.add(session)
+
 		session.sendMessage(TextMessage("{\"status\":\"상대방의 접속을 기다리고 있습니다.\"}"))
 
-		val sessionEntity = SessionEntity(null, UUID.fromString(session.id))
-		sessionRepository.save(sessionEntity)
-
-		sessions[UUID.fromString(session.id)] = session
-
-		val rooms = roomRepository.findRoomsWithSingleSession()
-
-		if(rooms.isEmpty()){
-			val roomEntity = RoomEntity(null, mutableListOf())
-			rooms.add(roomEntity)
+		val rooms = roomRepository.findBySessionBIsNull()
+		if(rooms.isNotEmpty()){
+			roomRepository.save(rooms.get(0).copy(sessionB = session.id))
 		}
 
-		val room = rooms[0]
-		room.sessions.add(sessionEntity)
-		roomRepository.save(room)
+		if(rooms.isEmpty()){
+			roomRepository.save(RoomEntity(
+				id = null,
+				sessionA = session.id,
+				sessionB = null
+			))
+		}
 
-		if(room.sessions.size == 2){
-			room.sessions.map { mapSession ->
-				sessions.filter { run {
-					it.key == mapSession.socket
-				}}.map { run {
-					it.value.sendMessage(TextMessage("{\"status\":\"상대방이 들어왔습니다.\"}"))
-				}}
-			}
+		val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
+		if(room.get().sessionA != null && room.get().sessionB != null) {
+			sessions.find { it.id == room.get().sessionB }
+				?.sendMessage(TextMessage("{\"status\":\"상대방이 들어왔습니다.\"}"))
+			sessions.find { it.id == room.get().sessionA }
+				?.sendMessage(TextMessage("{\"status\":\"상대방이 들어왔습니다.\"}"))
 		}
 	}
 
 	@Transactional
 	fun closedConnection(session: WebSocketSession){
-		val sessionId = UUID.fromString(session.id)
+		sessions.remove(session)
 
-		sessions.remove(sessionId)
+		val roomEntity = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 
-		val sessionEntity = sessionRepository.findBySocket(sessionId)
-		val roomEntity = roomRepository.findBySessionsContains(sessionEntity.get())
+		val sessionA = sessions.find { it.id == roomEntity.get().sessionA }
+		val sessionB = sessions.find { it.id == roomEntity.get().sessionB }
 
-		if(roomEntity.isPresent){
-			roomEntity.get().sessions.map { mapSession ->
-				val roomSessions = sessions.filter { it.key == mapSession.socket }
-				roomSessions.map {
-					if(it.value.isOpen){
-						it.value.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
-						it.value.close()
-					}
-				}
-			}
-			roomRepository.deleteById(roomEntity.get().id!!)
-		}
+		sessionA?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
+		sessionA?.close()
 
-		sessionRepository.deleteBySocket(sessionId)
+		sessionB?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
+		sessionB?.close()
 	}
 }
