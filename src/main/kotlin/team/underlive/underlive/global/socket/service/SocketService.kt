@@ -68,6 +68,8 @@ class SocketService(
 		val sessionA = sessions.find { it.id == roomEntity.get().sessionA }
 		val sessionB = sessions.find { it.id == roomEntity.get().sessionB }
 
+		roomRepository.delete(roomEntity.get())
+
 		sessionA?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
 		sessionA?.close()
 
