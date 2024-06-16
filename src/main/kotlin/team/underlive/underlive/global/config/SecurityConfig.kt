@@ -44,8 +44,7 @@ class SecurityConfig {
 
 		config.allowCredentials = true
 		config.allowedOrigins = mutableListOf("*")
-		config.allowedMethods =
-			mutableListOf("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS")
+		config.allowedMethods = mutableListOf("*")
 		config.allowedHeaders = mutableListOf("*")
 		config.exposedHeaders = mutableListOf("*")
 		config.maxAge = 86400L
