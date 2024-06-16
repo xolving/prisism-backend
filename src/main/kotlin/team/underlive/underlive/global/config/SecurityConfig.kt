@@ -22,6 +22,7 @@ class SecurityConfig {
 	@Throws(Exception::class)
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 		http.csrf { obj: CsrfConfigurer<HttpSecurity> -> obj.disable() }
+		http.cors { corsCustomizer -> corsCustomizer.disable() }
 
 		http.sessionManagement { sessionManagement: SessionManagementConfigurer<HttpSecurity?> ->
 			sessionManagement.sessionCreationPolicy(
@@ -34,32 +35,6 @@ class SecurityConfig {
 				.anyRequest().permitAll()
 		}
 
-		http.cors { corsCustomizer: CorsConfigurer<HttpSecurity?> ->
-			corsCustomizer.configurationSource(
-				corsConfigurationSource()
-			)
-		}
-
 		return http.build()
-	}
-
-	@Bean
-	fun corsConfigurationSource(): CorsConfigurationSource {
-		val config = CorsConfiguration()
-
-		config.allowCredentials = true
-		config.allowedOrigins = mutableListOf(
-			"http://localhost:3000",
-			"https://prisism.com"
-		)
-		config.allowedMethods =
-			mutableListOf("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS")
-		config.allowedHeaders = mutableListOf("*")
-		config.exposedHeaders = mutableListOf("*")
-		config.maxAge = 86400L
-
-		val source = UrlBasedCorsConfigurationSource()
-		source.registerCorsConfiguration("/**", config)
-		return source
 	}
 }
