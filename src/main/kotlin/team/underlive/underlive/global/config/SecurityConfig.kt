@@ -50,6 +50,7 @@ class SecurityConfig {
 		config.allowCredentials = true
 		config.allowedOrigins = mutableListOf(
 			"http://localhost:3000",
+			"https://prisism.com"
 		)
 		config.allowedMethods =
 			mutableListOf("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS")
