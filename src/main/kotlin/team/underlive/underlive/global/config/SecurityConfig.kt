@@ -37,4 +37,20 @@ class SecurityConfig {
 
 		return http.build()
 	}
+
+	@Bean
+	fun corsConfigurationSource(): CorsConfigurationSource {
+		val config = CorsConfiguration()
+
+		config.allowCredentials = true
+		config.allowedOrigins = mutableListOf("*")
+		config.allowedMethods = mutableListOf("*")
+		config.allowedHeaders = mutableListOf("*")
+		config.exposedHeaders = mutableListOf("*")
+		config.maxAge = 86400L
+
+		val source = UrlBasedCorsConfigurationSource()
+		source.registerCorsConfiguration("/**", config)
+		return source
+	}
 }
