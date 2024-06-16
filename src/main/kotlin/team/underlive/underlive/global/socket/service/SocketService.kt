@@ -59,6 +59,8 @@ class SocketService(
 	}
 
 	fun closedConnection(session: WebSocketSession){
+		sessions.remove(session)
+
 		val roomEntity = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 
 		if(roomEntity.isPresent) {
@@ -73,7 +75,5 @@ class SocketService(
 			sessionB?.sendMessage(TextMessage("{\"status\":\"채팅이 종료되었습니다.\"}"))
 			sessionB?.close()
 		}
-
-		sessions.remove(session)
 	}
 }
