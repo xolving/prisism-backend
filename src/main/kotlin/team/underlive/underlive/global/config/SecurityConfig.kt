@@ -43,7 +43,7 @@ class SecurityConfig {
 		val config = CorsConfiguration()
 
 		config.allowCredentials = true
-		config.allowedOrigins = mutableListOf("http://localhost:3000", "https://prisism.com")
+		config.allowedOrigins = mutableListOf("http://localhost:3000", "https://www.prisism.com")
 		config.allowedMethods = mutableListOf("*")
 		config.allowedHeaders = mutableListOf("*")
 		config.exposedHeaders = mutableListOf("*")
