@@ -22,7 +22,7 @@ class SecurityConfig {
 	@Throws(Exception::class)
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 		http.csrf { obj: CsrfConfigurer<HttpSecurity> -> obj.disable() }
-		http.cors { corsCustomizer -> corsCustomizer.disable() }
+		http.cors { corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()) }
 
 		http.sessionManagement { sessionManagement: SessionManagementConfigurer<HttpSecurity?> ->
 			sessionManagement.sessionCreationPolicy(
@@ -43,7 +43,7 @@ class SecurityConfig {
 		val config = CorsConfiguration()
 
 		config.allowCredentials = true
-		config.allowedOrigins = mutableListOf("*")
+		config.allowedOrigins = mutableListOf("http://localhost:3000", "https://prisism.com")
 		config.allowedMethods = mutableListOf("*")
 		config.allowedHeaders = mutableListOf("*")
 		config.exposedHeaders = mutableListOf("*")
