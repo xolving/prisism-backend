@@ -45,6 +45,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.postgresql:postgresql:42.7.3")
 
+	// Validation
+	implementation("org.springframework.boot:spring-boot-starter-validation:3.3.0")
+
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
 }

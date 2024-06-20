@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
-import team.underlive.underlive.domain.room.entity.RoomEntity
+import team.underlive.underlive.domain.room.entity.Room
 import team.underlive.underlive.domain.room.repository.RoomRepository
 import team.underlive.underlive.global.socket.dto.ChatMessage
 
@@ -40,7 +40,7 @@ class SocketService(
 		}
 
 		if(rooms.isEmpty()){
-			roomRepository.save(RoomEntity(
+			roomRepository.save(Room(
 				id = null,
 				sessionA = session.id,
 				sessionB = null

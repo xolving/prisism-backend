@@ -3,8 +3,7 @@ package team.underlive.underlive.domain.room.entity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "room")
-data class RoomEntity(
+data class Room (
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	val id: Long?,
