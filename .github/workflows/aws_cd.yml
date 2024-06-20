@@ -24,7 +24,7 @@ jobs:
             git pull origin main
             ./gradlew clean
             ./gradlew build
+            docker build -t prisism/backend .
             docker stop prisism-backend || true
             docker rm prisism-backend  || true
-            docker build -t prisism/backend .
             docker run -d -it --env-file ./.env -p 8080:8080 --name prisism-backend prisism/backend
