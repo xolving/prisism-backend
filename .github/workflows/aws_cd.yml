@@ -22,8 +22,6 @@ jobs:
           script: |
             cd /home/ubuntu/prisism-backend
             git pull origin main
-            ./gradlew clean
-            ./gradlew build
             docker stop prisism-backend || true
             docker rm prisism-backend  || true
             docker build -t prisism/backend .
