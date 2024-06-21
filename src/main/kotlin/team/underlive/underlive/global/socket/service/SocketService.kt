@@ -16,8 +16,8 @@ class SocketService(
 ){
 	val sessions = arrayListOf<WebSocketSession>()
 
-	fun sendMessage(session: WebSocketSession, message: ChatMessage) {
-		session.sendMessage(TextMessage(objectMapper.writeValueAsString(message)))
+	fun sendMessage(session: WebSocketSession, chatMessage: ChatMessage) {
+		session.sendMessage(TextMessage(objectMapper.writeValueAsString(chatMessage)))
 	}
 
 	@Transactional
@@ -25,9 +25,9 @@ class SocketService(
 		val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 
 		if(room.get().sessionA != session.id) {
-			sessions.find { it.id == room.get().sessionA}?.let { sendMessage(it, chatMessage) }
+			sessions.find { it.id == room.get().sessionA }?.let { sendMessage(it, chatMessage) }
 		} else if(room.get().sessionB != session.id) {
-			sessions.find { it.id == room.get().sessionB}?.let { sendMessage(it, chatMessage) }
+			sessions.find { it.id == room.get().sessionB }?.let { sendMessage(it, chatMessage) }
 		}
 	}
 
