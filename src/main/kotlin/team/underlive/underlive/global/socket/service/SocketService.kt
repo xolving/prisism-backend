@@ -23,12 +23,12 @@ class SocketService(
 	@Transactional
 	fun handlerActions(session: WebSocketSession, chatMessage: ChatMessage) {
 		val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
+		val isMe = session.id == room.get().sessionA
 
-		if(room.get().sessionA != session.id) {
-			sessions.find { it.id == room.get().sessionA }?.let { sendMessage(it, chatMessage) }
-		} else if(room.get().sessionB != session.id) {
-			sessions.find { it.id == room.get().sessionB }?.let { sendMessage(it, chatMessage) }
-		}
+		sessions.find { it.id == room.get().sessionA }?.let {
+			sendMessage(it, ChatMessage(message = chatMessage.message, sender = if(isMe) "나" else "상대방", ping = null)) }
+		sessions.find { it.id == room.get().sessionB }?.let {
+			sendMessage(it, ChatMessage(message = chatMessage.message, sender = if(!isMe) "나" else "상대방", ping = null)) }
 	}
 
 	fun establishedConnection(session: WebSocketSession){
