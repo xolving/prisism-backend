@@ -43,8 +43,7 @@ class SocketService(
 			roomRepository.save(Room(
 				id = null,
 				sessionA = session.id,
-				sessionB = null,
-				version = 1
+				sessionB = null
 			))
 		}
 
