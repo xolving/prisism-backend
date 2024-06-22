@@ -7,9 +7,7 @@ import team.underlive.underlive.domain.room.entity.Room
 import java.util.Optional
 
 interface RoomRepository: JpaRepository<Room, Long> {
-	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	fun findBySessionAOrSessionB(a: String, b: String): Optional<Room>
 
-	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	fun findBySessionBIsNull(): List<Room>
 }
