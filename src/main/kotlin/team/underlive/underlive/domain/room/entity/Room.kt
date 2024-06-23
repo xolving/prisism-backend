@@ -10,5 +10,5 @@ data class Room (
 
 	val sessionA: String?,
 
-	val sessionB: String?
+	val sessionB: String?,
 )

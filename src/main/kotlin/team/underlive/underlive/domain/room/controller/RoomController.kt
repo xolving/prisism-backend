@@ -9,7 +9,7 @@ import team.underlive.underlive.domain.room.service.RoomService
 
 @RestController
 @RequestMapping("/room")
-class RoomController(
+class RoomController (
 	private val roomService: RoomService
 ) {
 	@GetMapping
