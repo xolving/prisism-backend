@@ -20,19 +20,25 @@ class SocketService(
 	}
 
 	fun handlerActions(session: WebSocketSession, chatMessage: ChatMessage) {
-		if(chatMessage.type != "ping"){
+		if(!listOf("PING").contains(chatMessage.type)){
 			val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
-			val isMe = session.id == room.get().sessionA
+			val isAMe = session.id == room.get().sessionA
 
-			sessions.find { it.id == room.get().sessionA }?.let {
-				sendMessage(it, ChatMessage(content = chatMessage.content, sender = if(isMe) "나" else "상대방", type = "message")) }
-			sessions.find { it.id == room.get().sessionB }?.let {
-				sendMessage(it, ChatMessage(content = chatMessage.content, sender = if(!isMe) "나" else "상대방", type = "message")) }
+			if(listOf("MESSAGE", "JOIN", "EXIT", "WAIT").contains(chatMessage.type)){
+				sessions.find { it.id == room.get().sessionA }?.let {
+					sendMessage(it, ChatMessage(content = chatMessage.content, sender = if(isAMe) "나" else "상대방", type = "MESSAGE")) }
+				sessions.find { it.id == room.get().sessionB }?.let {
+					sendMessage(it, ChatMessage(content = chatMessage.content, sender = if(!isAMe) "나" else "상대방", type = "MESSAGE")) }
+			} else if(listOf("WRITE").contains(chatMessage.type)){
+				sessions.find { it.id == (if(isAMe) room.get().sessionB else room.get().sessionA) }?.let {
+					sendMessage(it, ChatMessage(content = chatMessage.content, sender = null, type = "WRITE"))
+				}
+			}
 		}
 	}
 
 	fun establishedConnection(session: WebSocketSession){
-		sendMessage(session, ChatMessage(type = "status", sender = null, content = "상대방의 접속을 기다리고 있습니다."))
+		sendMessage(session, ChatMessage(type = "WAIT", sender = null, content = null))
 
 		val rooms = roomRepository.findBySessionBIsNull()
 		if(rooms.isNotEmpty()){
@@ -52,10 +58,10 @@ class SocketService(
 		val room = roomRepository.findBySessionAOrSessionB(session.id, session.id)
 		if(room.get().sessionA != null && room.get().sessionB != null) {
 			sessions.find { it.id == room.get().sessionB }.let {
-				if (it != null) { sendMessage(it, ChatMessage(type = "status", content = "상대방이 들어왔습니다.", sender = null)) }
+				if (it != null) { sendMessage(it, ChatMessage(type = "JOIN", content = null, sender = null)) }
 			}
 			sessions.find { it.id == room.get().sessionA }.let {
-				if (it != null) { sendMessage(it, ChatMessage(type = "status", content = "상대방이 들어왔습니다.", sender = null)) }
+				if (it != null) { sendMessage(it, ChatMessage(type = "JOIN", content = null, sender = null)) }
 			}
 		}
 	}
@@ -75,7 +81,7 @@ class SocketService(
 
 			roomSessions.map {
 				if (it != null) {
-					sendMessage(it, ChatMessage(type = "status", content = "채팅이 종료되었습니다.", sender = null))
+					sendMessage(it, ChatMessage(type = "EXIT", content = null, sender = null))
 					it.close()
 				}
 			}
