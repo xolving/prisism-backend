@@ -18,6 +18,10 @@ class BoardService (
 	private val boardRepository: BoardRepository
 ){
 	fun createBoard (createBoardRequest: CreateBoardRequest){
+		if(createBoardRequest.title == null || createBoardRequest.content == null) {
+			throw HttpException(HttpStatus.BAD_REQUEST, "제목 또는 내용이 비어있으면 안됩니다.")
+		}
+
 		val board = Board(
 			id = 0,
 			title = createBoardRequest.title,
