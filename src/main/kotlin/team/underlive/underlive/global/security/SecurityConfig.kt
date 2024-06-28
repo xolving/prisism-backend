@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -29,6 +31,8 @@ class SecurityConfig {
 		http.authorizeHttpRequests { authorizeHttpRequests ->
 			authorizeHttpRequests
 				.requestMatchers("/board/**").permitAll()
+				.requestMatchers("/auth/**").permitAll()
+				.requestMatchers("/ws/chat").permitAll()
 				.requestMatchers(HttpMethod.GET, "/room/player").permitAll()
 				.anyRequest().denyAll()
 		}
@@ -50,5 +54,10 @@ class SecurityConfig {
 		val source = UrlBasedCorsConfigurationSource()
 		source.registerCorsConfiguration("/**", config)
 		return source
+	}
+
+	@Bean
+	fun passwordEncoder(): PasswordEncoder {
+		return BCryptPasswordEncoder()
 	}
 }
