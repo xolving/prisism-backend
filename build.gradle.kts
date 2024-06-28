@@ -1,15 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "3.2.5"
-	id("io.spring.dependency-management") version "1.1.4"
-	id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
-	kotlin("jvm") version "1.9.23"
-	kotlin("plugin.spring") version "1.9.23"
-	kotlin("plugin.jpa") version "1.9.23"
+	id("org.springframework.boot") version PluginVersions.SPRING_BOOT_VERSION
+	id("io.spring.dependency-management") version PluginVersions.DEPENDENCY_MANAGER_VERSION
+	id("org.jlleitschuh.gradle.ktlint") version PluginVersions.KTLINT_VERSION
+	kotlin("jvm") version PluginVersions.JVM_VERSION
+	kotlin("plugin.spring") version PluginVersions.SPRING_PLUGIN_VERSION
+	kotlin("plugin.jpa") version PluginVersions.JPA_PLUGIN_VERSION
 }
 
-group = "team.underlive"
+group = "dev.fodo"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -27,24 +27,24 @@ repositories {
 }
 
 dependencies {
-	// Socket
-	implementation("org.springframework.boot:spring-boot-starter-websocket")
-
 	// Default
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	implementation(Dependencies.SPRING_WEB)
+	implementation(Dependencies.JACKSON_KOTLIN)
+	implementation(Dependencies.KOTLIN_REFLECT)
+	testImplementation(Dependencies.SPRING_TEST)
+
+	// Socket
+	implementation(Dependencies.SPRING_SOCKET)
 
 	// Database
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.postgresql:postgresql:42.7.3")
+	implementation(Dependencies.SPRING_JPA)
+	implementation(Dependencies.POSTGRESQL)
 
 	// Validation
-	implementation("org.springframework.boot:spring-boot-starter-validation:3.3.0")
+	implementation(Dependencies.SPRING_VALIDATION)
 
 	// Security
-	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation(Dependencies.SPRING_SECURITY)
 }
 
 tasks.withType<KotlinCompile> {

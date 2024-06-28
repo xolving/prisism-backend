@@ -1,1 +1,1 @@
-rootProject.name = "underlive"
+rootProject.name = "prisism"
