@@ -40,10 +40,9 @@ class AuthService(
 			userRepository.findByEmail(userLoginRequest.email)
 				.orElseThrow { HttpException(HttpStatus.NOT_FOUND, "해당 이메일을 사용하는 유저를 찾을 수 없습니다.") }
 
-		if (!passwordEncoder.matches(userLoginRequest.password, user.password))
-			{
-				throw HttpException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.")
-			}
+		if (!passwordEncoder.matches(userLoginRequest.password, user.password)) {
+			throw HttpException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.")
+		}
 
 		return UserLoginResponse("test", "test")
 	}
