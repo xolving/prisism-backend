@@ -8,7 +8,7 @@ import team.underlive.underlive.global.exception.error.HttpException
 import team.underlive.underlive.global.exception.model.ExceptionResponse
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class ExceptionHandler {
 	private val logger = LoggerFactory.getLogger(javaClass)
 
 	@ExceptionHandler(HttpException::class)
