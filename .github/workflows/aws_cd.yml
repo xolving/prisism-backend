@@ -1,30 +1,35 @@
 name: CD
+
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
+    workflow_run:
+        workflows: ["Gradle CI"]
+        types:
+            - completed
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-      - name: excuting remote ssh commands
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.REMOTE_IP }}
-          port: ${{ secrets.REMOTE_SSH_PORT }}
-          username: ${{ secrets.REMOTE_USERNAME }}
-          key: ${{ secrets.REMOTE_KEY }}
-          script: |
-            cd /home/ubuntu/prisism-backend
-            git pull origin main
-            ./gradlew clean
-            ./gradlew build
-            docker build -t prisism/backend .
-            docker stop prisism-backend || true
-            docker rm prisism-backend  || true
-            docker run -d -it --env-file ./.env -p 8080:8080 --name prisism-backend prisism/backend
+            - name: excuting remote ssh commands
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.REMOTE_IP }}
+                  port: ${{ secrets.REMOTE_SSH_PORT }}
+                  username: ${{ secrets.REMOTE_USERNAME }}
+                  key: ${{ secrets.REMOTE_KEY }}
+                  script: |
+                      cd /home/ubuntu/prisism-backend
+                      git pull origin main
+                      ./gradlew clean
+                      ./gradlew build
+                      docker build -t prisism/backend .
+                      docker stop prisism-backend || true
+                      docker rm prisism-backend  || true
+                      docker run -d -it --env-file ./.env -p 8080:8080 --name prisism-backend prisism/backend
