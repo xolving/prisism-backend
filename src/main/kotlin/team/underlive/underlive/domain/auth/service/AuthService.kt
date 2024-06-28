@@ -16,7 +16,7 @@ import team.underlive.underlive.global.exception.error.HttpException
 @Service
 class AuthService(
 	private val userRepository: UserRepository,
-	private val passwordEncoder: PasswordEncoder
+	private val passwordEncoder: PasswordEncoder,
 ) {
 	fun createUser(userJoinRequest: UserJoinRequest) {
 		if (userRepository.existsByEmail(userJoinRequest.email)) {
@@ -36,14 +36,14 @@ class AuthService(
 	}
 
 	fun loginUser(userLoginRequest: UserLoginRequest): UserLoginResponse {
-		val user = userRepository.findByEmail(userLoginRequest.email)
-			.orElseThrow { HttpException(HttpStatus.NOT_FOUND, "해당 이메일을 사용하는 유저를 찾을 수 없습니다.") }
+		val user =
+			userRepository.findByEmail(userLoginRequest.email)
+				.orElseThrow { HttpException(HttpStatus.NOT_FOUND, "해당 이메일을 사용하는 유저를 찾을 수 없습니다.") }
 
-		if(!passwordEncoder.matches(userLoginRequest.password, user.password)){
-			throw HttpException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.")
-		}
-
-
+		if (!passwordEncoder.matches(userLoginRequest.password, user.password))
+			{
+				throw HttpException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.")
+			}
 
 		return UserLoginResponse("test", "test")
 	}
