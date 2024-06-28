@@ -1,22 +1,20 @@
-package team.underlive.underlive.global.exception;
+package team.underlive.underlive.global.exception
 
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 import team.underlive.underlive.global.exception.error.HttpException
-import team.underlive.underlive.global.exception.model.ExceptionResponse;
-import kotlin.math.log
+import team.underlive.underlive.global.exception.model.ExceptionResponse
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    private val logger = LoggerFactory.getLogger(javaClass)
+	private val logger = LoggerFactory.getLogger(javaClass)
 
-    @ExceptionHandler(HttpException::class)
-    fun exception(exception: HttpException): ResponseEntity<ExceptionResponse> {
-        logger.error("${exception.message} ${exception.statusCode}")
-        return ResponseEntity.status(exception.statusCode)
-                .body(ExceptionResponse( message = exception.message ));
-    }
+	@ExceptionHandler(HttpException::class)
+	fun exception(exception: HttpException): ResponseEntity<ExceptionResponse> {
+		logger.error("${exception.message} ${exception.statusCode}")
+		return ResponseEntity.status(exception.statusCode)
+			.body(ExceptionResponse(message = exception.message))
+	}
 }

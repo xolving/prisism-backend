@@ -1,17 +1,13 @@
-package team.underlive.underlive.global.config
+package team.underlive.underlive.global.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -26,13 +22,15 @@ class SecurityConfig {
 
 		http.sessionManagement { sessionManagement: SessionManagementConfigurer<HttpSecurity?> ->
 			sessionManagement.sessionCreationPolicy(
-				SessionCreationPolicy.STATELESS
+				SessionCreationPolicy.STATELESS,
 			)
 		}
 
 		http.authorizeHttpRequests { authorizeHttpRequests ->
 			authorizeHttpRequests
-				.anyRequest().permitAll()
+				.requestMatchers("/board/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/room/player").permitAll()
+				.anyRequest().denyAll()
 		}
 
 		return http.build()

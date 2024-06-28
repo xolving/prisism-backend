@@ -1,12 +1,10 @@
 package team.underlive.underlive.domain.board.entity.dto
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators.StringIdGenerator
-import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
-data class CreateBoardRequest (
-	@NotBlank
+data class CreateBoardRequest(
+	@field:NotNull
 	val title: String,
-
-	@NotBlank
-	val content: String
+	@field:NotNull
+	val content: String,
 )

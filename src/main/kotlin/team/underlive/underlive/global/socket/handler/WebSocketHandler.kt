@@ -7,14 +7,16 @@ import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import team.underlive.underlive.global.socket.dto.ChatMessage
-import team.underlive.underlive.global.socket.service.SocketService
 
 @Component
 class WebSocketHandler(
 	private val objectMapper: ObjectMapper,
 	private val socketService: SocketService,
 ) : TextWebSocketHandler() {
-	override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
+	override fun handleTextMessage(
+		session: WebSocketSession,
+		message: TextMessage,
+	) {
 		val chatMessage: ChatMessage = objectMapper.readValue(message.payload, ChatMessage::class.java)
 		socketService.handlerActions(session, chatMessage)
 	}
@@ -24,7 +26,10 @@ class WebSocketHandler(
 		super.afterConnectionEstablished(session)
 	}
 
-	override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
+	override fun afterConnectionClosed(
+		session: WebSocketSession,
+		status: CloseStatus,
+	) {
 		socketService.closedConnection(session)
 		super.afterConnectionClosed(session, status)
 	}

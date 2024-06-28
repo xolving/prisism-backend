@@ -9,17 +9,11 @@ import team.underlive.underlive.domain.room.service.RoomService
 
 @RestController
 @RequestMapping("/room")
-class RoomController (
-	private val roomService: RoomService
+class RoomController(
+	private val roomService: RoomService,
 ) {
-	@GetMapping
-	fun findAllRoom(): ResponseEntity<Int> {
-		val rooms = roomService.findAllRoom()
-		return ResponseEntity.ok(rooms)
-	}
-
 	@GetMapping("/player")
-	fun countAllPlayers(): ResponseEntity<PlayerCountResponse>{
+	fun countAllPlayers(): ResponseEntity<PlayerCountResponse> {
 		return ResponseEntity.ok(roomService.countAllPlayers())
 	}
 }

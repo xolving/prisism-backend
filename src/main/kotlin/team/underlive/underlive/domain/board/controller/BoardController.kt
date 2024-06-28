@@ -1,7 +1,6 @@
 package team.underlive.underlive.domain.board.controller
 
 import jakarta.validation.Valid
-import org.hibernate.annotations.Fetch
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,11 +15,13 @@ import team.underlive.underlive.domain.board.service.BoardService
 
 @RestController
 @RequestMapping("/board")
-class BoardController (
-	private val boardService: BoardService
-){
+class BoardController(
+	private val boardService: BoardService,
+) {
 	@PostMapping
-	fun createBoard(@RequestBody @Valid createBoardRequest: CreateBoardRequest): ResponseEntity<Void> {
+	fun createBoard(
+		@RequestBody @Valid createBoardRequest: CreateBoardRequest,
+	): ResponseEntity<Void> {
 		boardService.createBoard(createBoardRequest)
 		return ResponseEntity.ok().build()
 	}
@@ -31,7 +32,9 @@ class BoardController (
 	}
 
 	@GetMapping("/{id}")
-	fun fetchBoard (@PathVariable id: String): ResponseEntity<FetchBoardResponse> {
+	fun fetchBoard(
+		@PathVariable id: String,
+	): ResponseEntity<FetchBoardResponse> {
 		return ResponseEntity.ok(boardService.fetchBoard(id.toLong()))
 	}
 }
